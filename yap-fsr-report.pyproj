@@ -11,6 +11,7 @@
     <OutputPath>.</OutputPath>
     <Name>yap-fsr-report</Name>
     <RootNamespace>yap-fsr-report</RootNamespace>
+    <IsWindowsApplication>True</IsWindowsApplication>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)' == 'Debug' ">
     <DebugSymbols>true</DebugSymbols>

@@ -1,7 +1,14 @@
 import json
 import re
 import csv
-import datetime
+
+from datetime import *
+from urllib.request import urlopen
+import mysql.connector
+import yapReportCalendar  
+import calendar
+    
+
 shifts = [['Monday',0,7.5],['Monday',7.5,13],['Monday',13,17],['Monday',17,23],['Tuesday',0,7.5],['Tuesday',7.5,13],['Tuesday',13,17],['Tuesday',17,23],['Tuesday',0,7], \
           ['Wednesday',0,7.5],['Wednesday',7.5,13],['Wednesday',13,17],['Wednesday',17,23],['Thursday',0,7.5],['Thursday',7.5,13],['Thursday',13,17],['Thursday',17,23], \
           ['Friday',0,7.5],['Friday',7.5,13],['Friday',13,17],['Friday',17,23],['Saturday',0,7.5],['Saturday',7.5,13],['Saturday',13,17],['Saturday',17,23], \
@@ -14,7 +21,7 @@ str_status = ""
 str_comment = ""
 num_meta = []
 meta_str = []
-yap_json_file = open('yap.json')
+#yap_json_file = open('yap.json')
 #yap_report_rile = open('yap_report.csv',"a+")
 
 
@@ -22,12 +29,16 @@ yap_json_file = open('yap.json')
 
 weekDays = ("Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday")
 
-
-rec_start_date = datetime.datetime.strptime('2021-09-01', '%Y-%m-%d')
-
-calls = json.load(yap_json_file)
+url = "https://freestatena.org/yap/admin/cdr_api.php?service_body_id=31&page=1&size=20000"
+response = urlopen(url)
+calls = json.loads(response.read())
+#monthToReport = '10/27/21'
+monthToReport = yapReportCalendar.getDate()
+rec_start_date = monthToReport + "-" + "01"
+edate = datetime.strptime(rec_start_date,"%Y-%m-%d")
+d = edate.replace(day = calendar.monthrange(edate.year, edate.month)[1])
+rec_end_date = d.strftime("%Y") + "-" + d.strftime("%m") + "-" + d.strftime("%d")
 number_of_calls = 0
-length = len(calls)
 with open('yap_report.csv', 'w', encoding='UTF8', newline='') as f:
     writer = csv.writer(f)
     header = ['id','Start Time','End Time','Duration (seconds)','From','To','Call Events','Comment']
@@ -37,10 +48,14 @@ with open('yap_report.csv', 'w', encoding='UTF8', newline='') as f:
     row = ["Number of calls:",num_calls]
     writer.writerow(row)
     #num_calls = 0
-    for call in reversed(calls):
+    for call in reversed(calls['data']):
         date_str = call['start_time'][0:10]
-        if (datetime.datetime.strptime(date_str, '%Y-%m-%d') < rec_start_date):
+        date_str_ms = int(round(datetime.strptime(date_str, '%Y-%m-%d').timestamp() * 1000))
+        rec_start_ms = int(round(datetime.strptime(rec_start_date, '%Y-%m-%d').timestamp() * 1000))
+        if (date_str_ms >= rec_start_ms):
            continue
+        if (datetime.strptime(date_str, '%Y-%m-%d') <= datetime.strptime(rec_end_date,'%Y-%m-%d')):
+            break
         num_events = len(call['call_events'])
         i=1
         real_call=0
@@ -66,7 +81,7 @@ with open('yap_report.csv', 'w', encoding='UTF8', newline='') as f:
 
             row = [call['id'],call['start_time'],call['end_time'],call['duration'],  \
                     call['from_number'],to_number,event['event_id'],str_comment]
-            #writer.writerow(row)
+            writer.writerow(row)
     row = ["Number of calls:",num_calls]
     writer.writerow(row)
     num_ignored_calls = len(vol_no_answer)
