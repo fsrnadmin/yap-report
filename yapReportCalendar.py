@@ -1,4 +1,5 @@
 
+import sys
 from datetime import *
 from tkinter import *
 from tkcalendar import *
@@ -28,7 +29,7 @@ def getDate():
             print(mydate)
             root.destroy()
 
-    my_button = Button(root, text="Get Date", command=grab_date)
+    my_button = Button(root, text="Pick Month", command=grab_date)
     my_button.pack(pady=20)
 
     my_label = Label(root, text="")
@@ -44,6 +45,15 @@ def getDate():
      
     # start the GUI
     root.mainloop()
-    dt_object = datetime.strptime(mydate,"%m/%d/%y")
-    monthStr = dt_object.strftime("%Y") + "-" + dt_object.strftime("%m")
-    return monthStr
+    try:
+        dt_object = datetime.strptime(mydate,"%m/%d/%y")
+        monthStr = dt_object.strftime("%Y") + "-" + dt_object.strftime("%m")
+        return monthStr
+    except ValueError:
+        print("Date not selected, to give the Month: Exiting .....")
+        sys.exit()
+
+
+
+
+    
