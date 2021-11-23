@@ -146,21 +146,20 @@ with open(filename, 'w', encoding='UTF8', newline='') as f:
             writer.writerow(row)        
             #if (call_missed == True): 
             #        vol_missed.extend(event_ph_numbers)
-    row = ["number of calls:",num_calls]
-    writer.writerow(row)
-    vol_no_answer = list(dict.fromkeys(vol_no_answer))
-    num_ignored_calls = len(vol_no_answer)
-    uniqueVolNoAnswer = []
-    for vol in vol_no_answer:
-        if vol not in uniqueVolNoAnswer:
-           uniqueVolNoAnswer.append(vol)
-    row = ['Volunteers(no answer)','Count','','','','','','','']
-    writer.writerow(row)
-    row = ['-----','------','-----','','','','','','','']
-    writer.writerow(row)
-    for vol in uniqueVolNoAnswer:
-        row = [vol,vol_no_answer.count(vol),'','','','','','','']
-        writer.writerow(row)
+    #row = ["number of calls:",num_calls]
+    #writer.writerow(row)
+    #vol_no_answer = list(dict.fromkeys(vol_no_answer))
+    #num_ignored_calls = len(vol_no_answer)
+    ##for vol in vol_no_answer:
+    #    if vol not in uniqueVolNoAnswer:
+    #       uniqueVolNoAnswer.append(vol)
+    #row = ['Volunteers(no answer)','Count','','','','','','','']
+    #writer.writerow(row)
+    #row = ['-----','------','-----','','','','','','','']
+    #writer.writerow(row)
+    #for vol in uniqueVolNoAnswer:
+    #    row = [vol,vol_no_answer.count(vol),'','','','','','','']
+    #    writer.writerow(row)
     row = ['Volunteers(rejected calls)','Count','','','','','','','']
     writer.writerow(row)
     row = ['-----','------','-----','','','','','','','']
