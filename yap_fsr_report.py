@@ -6,7 +6,11 @@ import phonenumbers
 from datetime import *
 from urllib.request import urlopen
 import mysql.connector
-import yapReportCalendar  
+import yapReportCalendar
+from datetime import datetime
+from dateutil import tz
+import pytz
+
 import calendar
 import os
 
@@ -63,6 +67,24 @@ with open(filename, 'w', encoding='UTF8', newline='') as f:
     
     num_calls = 0
     for call in reversed(calls['data']):
+        #change times from zulu to local time
+        #convert string to datetime
+        original_start = call['start_time']
+        original_end = call['end_time']
+        utcStart = datetime.strptime(call['start_time'], '%Y-%m-%d %H:%M:%SZ')
+        #add time zone at end
+        utcStart = utcStart.replace(tzinfo=tz.tzutc())
+        #convert to local time
+        localstart = utcStart.astimezone(tz.tzlocal())
+        #convert to string without timezone
+        call['start_time'] = localstart.strftime('%Y-%m-%d %H:%M:%S')
+
+        utcEnd = datetime.strptime(call['end_time'], '%Y-%m-%d %H:%M:%SZ')
+        utcEnd = utcEnd.replace(tzinfo=tz.tzutc())
+        localend = utcEnd.astimezone(tz.tzlocal())
+        call['end_time'] = localend.strftime('%Y-%m-%d %H:%M:%S')
+        #end change to local
+
         date_str = call['start_time'][0:10]
         date_str_ms = int(round(datetime.strptime(date_str, '%Y-%m-%d').timestamp() * 1000))
         rec_start_ms = int(round(datetime.strptime(rec_start_date, '%Y-%m-%d').timestamp() * 1000))
@@ -79,6 +101,7 @@ with open(filename, 'w', encoding='UTF8', newline='') as f:
         to_number = ""
         str_comment = ""
         event_no = 0
+
         for event in reversed(call['call_events']):
             event_no+=1
             meta_str = json.loads(event['meta'])
@@ -140,7 +163,9 @@ with open(filename, 'w', encoding='UTF8', newline='') as f:
                 elif state == "Voicemail":
                     str_comment = "MISSED_CALL"
                     num_calls_missed+=1
-                        
+            
+            
+
             row = [call['id'],call['start_time'],call['end_time'],call['duration'],  \
                     call['from_number'],to_number,event['event_id'],str_comment]
             writer.writerow(row)        
